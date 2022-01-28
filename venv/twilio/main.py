@@ -1,5 +1,3 @@
-from operator import mod
-from threading import current_thread
 import requests
 import pandas as pd
 import os
@@ -7,31 +5,38 @@ from dotenv import load_dotenv
 import json
 load_dotenv()
 
-def load_data(sid, token):
+def load_data(sid, token, name):
     accountSID = os.getenv(sid)
     authToken =  os.getenv(token)
+    accountName = os.getenv(name)
     url = f'https://api.twilio.com/2010-04-01/Accounts/{accountSID}/Usage/Records/Daily.json'
     response = requests.get(url, auth=(accountSID, authToken))
-    data = response.json()['usage_records']
+    data = response.json()
+    for key, value in data.items():
+        print(key, " : ", value)
+    data = data['usage_records']
     print('Number of Messages: ', len(data))
     print(json.dumps(data, indent=2))
-    return pd.DataFrame(data)
+    data = pd.DataFrame(data)
+    data['account_name'] = accountName
+    return data    
     
-    
-number_of_accounts = 2
+number_of_accounts = 1
 i=1
 while (i<=number_of_accounts):
     sid = "SID"+str(i)
     token = "TOKEN"+str(i)
+    name = "NAME"+str(i)
     if (i==1):
-        dataframe = load_data(sid,token)
+        dataframe = load_data(sid,token,name)
     else:
         tempframe = load_data(sid,token)
         dataframe = dataframe.append(tempframe)
     print(f"Done with account number {i}")
     i +=1
 
-data = dataframe.groupby(['account_sid','end_date','as_of'])['price'].sum().reset_index()
+
+data = dataframe.groupby(['account_name','end_date'])['price'].sum().reset_index()
 current_dir = os.getcwd()
 data.to_csv(f'{current_dir}\data.csv')
 
