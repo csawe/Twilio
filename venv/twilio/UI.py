@@ -52,7 +52,7 @@ def main():
         data.drop(data.columns[data.columns.str.contains('unnamed',case = False)],axis = 1, inplace = True)
         try:
             new_data = data.loc[(data['end_date']>=begin) & (data['end_date']<end)]
-            new_data = new_data.groupby(['account_sid'])['price'].sum()
+            new_data = new_data.groupby(['account_name'])['price'].sum()
             t1.delete('1.0','end')
             t1.insert(tkinter.END, 'Success')
             print(new_data)
