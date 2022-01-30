@@ -12,8 +12,6 @@ def load_data(sid, token, name):
     url = f'https://api.twilio.com/2010-04-01/Accounts/{accountSID}/Usage/Records/Daily.json'
     response = requests.get(url, auth=(accountSID, authToken))
     data = response.json()
-    for key, value in data.items():
-        print(key, " : ", value)
     data = data['usage_records']
     print('Number of Messages: ', len(data))
     print(json.dumps(data, indent=2))
